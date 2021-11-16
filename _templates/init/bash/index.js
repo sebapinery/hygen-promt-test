@@ -1,6 +1,6 @@
 // init/with-prompt/index.js
 module.exports = {
-  prompt: ({ prompter, args }) => {
+  prompt: ({ prompter }) => {
     return prompter
       .prompt({
         type: "input",
@@ -15,6 +15,11 @@ module.exports = {
             value: qty_variables,
             skip: true,
           },
+          {
+            type: "input",
+            name: "root_path",
+            message: "Ruta del job",
+          },
         ];
         for (var i = 1; i <= qty_variables; i++) {
           variableNameQuestions.push({
@@ -23,7 +28,6 @@ module.exports = {
             message: `Nombre de la variable ${i}`,
           });
         }
-
         return prompter.prompt(variableNameQuestions);
       });
   },

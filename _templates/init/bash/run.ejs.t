@@ -41,19 +41,20 @@ set -e
     done
 
     #Copy .env.example like .env
-    cp /home/rundeck/<%= root_path %>/.env.example /home/rundeck/<%= root_path %>/.env
+    cp /home/rundeck/projects/<%= root_path %>/.env.example /home/rundeck/projects/<%= root_path %>/.env
 
     #remplace variables on .env
-    sed -i "s|__<%= variable_name %>__|@option.<%= rd_secret_name %>@|" /home/rundeck/<%= root_path %>/.env
+<% for(var i = 0; i < qty_variables; i++) { -%>
+    sed -i "s|__<%= eval(`variable_name_${i+1}`).toUpperCase() %>__|@option.<%= eval(`variable_name_${i+1}`).toUpperCase() %>@|" /home/rundeck/projects/<%= root_path %>/.env
+<% } -%>
 
-    
     #Copy script file on rundeck-worker pod
     echo -e '\n\n----- Copiando archivos de ejecución en '$WORKER_NAME' -----\n\n'
-    kubectl cp /home/rundeck/<%= root_path %>/script.sh rundeck-jobs/$WORKER_NAME:/home/worker/job.sh
-    kubectl cp /home/rundeck/<%= root_path %>/.env rundeck-jobs/$WORKER_NAME:/home/worker/.env
+    kubectl cp /home/rundeck/projects/<%= root_path %>/script.sh rundeck-jobs/$WORKER_NAME:/home/worker/job.sh
+    kubectl cp /home/rundeck/projects/<%= root_path %>/.env rundeck-jobs/$WORKER_NAME:/home/worker/.env
     
     #Remove .env file
-    rm -rf /home/rundeck/<%= root_path %>/.env
+    rm -rf /home/rundeck/projects/<%= root_path %>/.env
 
     #Execute the script on rundeck-worker pod
     if kubectl exec -ti -n rundeck-jobs $WORKER_NAME -- /home/worker/job.sh; then
@@ -67,3 +68,7 @@ set -e
         kubectl delete pod $WORKER_NAME -n rundeck-jobs --grace-period 0 --force
         exit 1
     fi
+
+
+
+
